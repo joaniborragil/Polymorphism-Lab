@@ -3,10 +3,10 @@ let G;
 
 function setup() {
   createCanvas(400, 600);
-  emitters.push(new Emitter(width / 2, 30));
   G = createVector(0, 0.1);
   ellipseMode(RADIUS);
   noStroke();
+  emitters.push(new Emitter(width / 2, 30)); 
 }
 
 function draw() {
@@ -21,13 +21,16 @@ class Emitter {
     this.x = x;
     this.y = y;
     this.particles = [];
-    for (let i = 0; i < 20; i++) {
-      this.particles.push(new Particle(this.x, this.y));
+  
+    let numParticles = int(random(10, 30));
+    for (let i = 0; i < numParticles; i++) {
+      this.particles.push(new EmitterParticle(this.x, this.y));
     }
+    this.particleSpawnRate = random(0.1, 1); 
   }
 
   update() {
-    this.particles = this.particles.filter(p => !p.isDead());
+    this.particles = this.particles.filter((p) => !p.isDead());
 
   
     for (let p of this.particles) {
@@ -36,17 +39,24 @@ class Emitter {
       p.draw();
     }
 
-
-    this.particles.push(new Particle(this.x, this.y));
+    
+    if (random(1) < this.particleSpawnRate) {
+      this.particles.push(new EmitterParticle(this.x, this.y));
+    }
   }
 }
 
-class Particle {
+class EmitterParticle {
   constructor(x, y) {
     this.pos = createVector(x, y);
+    
     this.vel = createVector(random(-1, 1), random(-2, 0));
     this.acc = createVector(0, 0);
     this.lifespan = 255;
+    
+    this.color = color(random(255), random(255), random(255));
+    
+    this.size = random(5, 10);
   }
 
   applyForce(force) {
@@ -61,8 +71,8 @@ class Particle {
   }
 
   draw() {
-    fill(0, this.lifespan);
-    ellipse(this.pos.x, this.pos.y, 8, 8);
+    fill(this.color.levels[0], this.color.levels[1], this.color.levels[2], this.lifespan);
+    ellipse(this.pos.x, this.pos.y, this.size, this.size);
   }
 
   isDead() {
@@ -73,3 +83,5 @@ class Particle {
 function mouseClicked() {
   emitters.push(new Emitter(mouseX, mouseY));
 }
+
+
